@@ -1,5 +1,38 @@
 "use strict";
 
+function leftEdge(){
+	var self = this;
+	self.draw = function(loc){
+		loc.css({"background-image":"url(img/left.svg)"});
+	}
+}
+function topEdge(loc){
+	var self = this;
+	self.draw = function(loc){
+		loc.css({"background-image":"url(img/top.svg)"});
+	}
+}
+function rightEdge(loc){
+	var self = this;
+	self.draw = function(loc){
+		loc.css({"background-image":"url(img/right.svg)"});
+	}
+}
+function bottomEdge(loc){
+	var self = this;
+	self.draw = function(loc){
+		loc.css({"background-image":"url(img/bottom.svg)"});
+	}
+}
+function newLoc(x,y){
+	var self = this;
+	self.draw = function(loc){
+		loc.css({"background-image":"url(img/empty.svg)","z-index":"50"});
+		loc.on("mouseover",function(){loc.text (x+","+y)});
+		loc.on("mouseout",function(){loc.text("")});			
+	}		
+}
+
 function thing(){
 	var self = this;
 	self.locs = [];
@@ -15,11 +48,11 @@ function thing(){
 			self.locs[x].length = my;
 			for(var y =0;y<self.locs[x].length;y++){
 				self.locs[x][y] = [];
-				self.locs[x][y].push("empty"); 
-				if(x == 0){self.locs[x][y].push("left")};
-				if(x == mx-1){self.locs[x][y].push("right")};
-				if(y == 0){self.locs[x][y].push("top")};
-				if(y == my-1){self.locs[x][y].push("bottom")};
+				self.locs[x][y].push(new newLoc(x,y)); 
+				if(x == 0){self.locs[x][y].push(new leftEdge())};
+				if(x == mx-1){self.locs[x][y].push(new rightEdge())};
+				if(y == 0){self.locs[x][y].push(new topEdge())};
+				if(y == my-1){self.locs[x][y].push(new bottomEdge())};
 			}
 		}
 		self.map.width(mx * self.mw).height(my * self.mh);
@@ -28,44 +61,14 @@ function thing(){
 
 	function drawloc(x,y){
 		for(var i = 0; i < self.locs[x][y].length;i++){
-			//var loc = $("<div class='loc'>"+x+","+y+"</div>");
 			var loc = $("<div class='loc'></div>");
 			loc.data("x",x).data("y",y);
 			loc.height(self.mh).width(self.mw);
 			loc.offset({left:(x * self.mw),top:(y*self.mh)});
-			var v = self.locs[x][y][i];			
-			switch(v){
-				case "empty":{
-					//empty
-					loc.css({"background-image":"url(img/empty.svg)","z-index":"50"});
-					loc.on("mouseover",function(){loc.text (x+","+y)});
-					loc.on("mouseout",function(){loc.text("")});
-					break;
-				}
-				case "top":{
-					//top wall
-					loc.css({"background-image":"url(img/top.svg)"});
-					break;
-				}
-				case "bottom":{
-					//bottom wall
-					loc.css({"background-image":"url(img/bottom.svg)"});
-					break;
-				}
-				case "left":{
-					//left wall
-					loc.css({"background-image":"url(img/left.svg)"});
-					break;
-				}
-				case "right":{
-					//right wall
-					loc.css({"background-image":"url(img/right.svg)"});
-					break;
-				}
-				default:{
-					loc.css({"background-image":"url(img/unknown.svg)"});
-				}
-			}
+			var v = self.locs[x][y][i];
+			if("draw" in v){
+				v.draw(loc);
+			}			
 			loc.appendTo(self.map);
 		}
 	};
