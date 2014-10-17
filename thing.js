@@ -1,5 +1,6 @@
 "use strict";
 
+var ticklength = 250;
 
 function thingmap(){
 	var self = this;
@@ -169,12 +170,70 @@ function thing (name){
 		self.element.animate({
 			"left":self.x * self.map.mw,
 			"top":self.y * self.map.mh
-		},250,"linear");
+		},ticklength,"linear");
+	}
+}
+
+//this is a controlled thing
+function controlledThing(name){
+	var self = this;
+	self.name = name;
+	self.x = 0;
+	self.y = 0;
+	self.nextx =0;
+	self.nexty = 0;
+	self.draw = function(map){
+		self.map = map;
+		self.element = $("<div class='controlledThing thing'></div>");
+		self.element.appendTo(map.element)
+			.css({"background-image":"url(img/controlledThing.svg)",
+				"z-index":"100",
+				"height":map.mh,
+				"width":map.mw, 
+				"left":self.x * map.mw,
+				"top":self.y * map.mh
+			});
+		self.element.on("mouseenter",function(){self.element.text(self.name)});
+		self.element.on("mouseout",function(){self.element.text("")});			
+		$(document).on("keydown",function(e){
+			switch(e.which){
+				case(87):{//"w"
+					if(self.y>0)self.nexty =self.y-1;
+					break;
+				}
+				case(83):{//"s"
+					if(self.y<self.map.maxY)self.nexty=self.y+1;
+					break;
+				}
+				case(65):{//"a"
+					if(self.x>0)self.nextx=self.x-1;
+					break;
+				}
+				case(68):{//"d"
+					if(self.x<self.map.maxX)self.nextx=self.x + 1;
+					break;
+				}
+				default:{
+					return;
+				}
+			}
+		});
+	}
+	self.tick = function(){
+		if(self.nextx != self.x || self.nexty != self.y){
+			self.element.animate({
+				"left":self.nextx * self.map.mw,
+				"top":self.nexty * self.map.mh
+			},ticklength,"linear",function(){
+				self.x = self.nextx;
+				self.y = self.nexty;
+			});
+		}
 	}
 }
 
 function start(tmap){
-	tmap.ticker.push(setInterval(function(){tick(tmap)},250));
+	tmap.ticker.push(setInterval(function(){tick(tmap)},ticklength));
 	$("#btnStart").text("stop").on("click",function(t){return function(){stop(t);}}(tmap));
 }
 
@@ -193,5 +252,6 @@ function tick(tmap){
 var t = new thingmap();
 t.init(12,8);
 t.addThing(new thing("thing"),6,4);
+t.addThing(new controlledThing("you"),5,5);
 t.drawMap();
 start(t);
