@@ -180,7 +180,7 @@ function controlledThing(name){
 	self.name = name;
 	self.x = 0;
 	self.y = 0;
-	self.nextx =0;
+	self.nextx = 0;
 	self.nexty = 0;
 	self.draw = function(map){
 		self.map = map;
@@ -198,19 +198,19 @@ function controlledThing(name){
 		$(document).on("keydown",function(e){
 			switch(e.which){
 				case(87):{//"w"
-					if(self.y>0)self.nexty =self.y-1;
+					if(self.y>0)self.nexty =-1;
 					break;
 				}
 				case(83):{//"s"
-					if(self.y<self.map.maxY)self.nexty=self.y+1;
+					if(self.y<self.map.maxY)self.nexty=1;
 					break;
 				}
 				case(65):{//"a"
-					if(self.x>0)self.nextx=self.x-1;
+					if(self.x>0)self.nextx=-1;
 					break;
 				}
 				case(68):{//"d"
-					if(self.x<self.map.maxX)self.nextx=self.x + 1;
+					if(self.x<self.map.maxX)self.nextx= 1;
 					break;
 				}
 				default:{
@@ -220,13 +220,15 @@ function controlledThing(name){
 		});
 	}
 	self.tick = function(){
-		if(self.nextx != self.x || self.nexty != self.y){
+		if(self.nextx != 0 || self.nexty != 0){
 			self.element.animate({
-				"left":self.nextx * self.map.mw,
-				"top":self.nexty * self.map.mh
+				"left":(self.x + self.nextx) * self.map.mw,
+				"top":(self.y+self.nexty) * self.map.mh
 			},ticklength,"linear",function(){
-				self.x = self.nextx;
-				self.y = self.nexty;
+				self.x = self.x + self.nextx;
+				self.y = self.y + self.nexty;
+				self.nextx =0;
+				self.nexty = 0;
 			});
 		}
 	}
