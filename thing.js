@@ -9,9 +9,11 @@ function thingmap(){
 	self.map = {element:$("#map"),mh:50,mw:50,maxX:0,maxY:0};
 	self.ticker = [];
 	self.scale = 1;
-	self.init = function (mx,my){
+	self.init = function (mx,my,cellwidth,cellheight){
 		self.map.maxX = mx-1;
 		self.map.maxY = my-1;
+		self.map.mh = cellheight;
+		self.map.mw = cellwidth;
 		self.drawables = [];
 		self.actionables = [];
 		for(var x = 0;x<mx;x++){
@@ -174,7 +176,7 @@ function thing (name){
 	}
 }
 
-//this is a controlled thing
+//this is a controlled thing - it is controlled by keyboard wasd
 function controlledThing(name){
 	var self = this;
 	self.name = name;
@@ -252,7 +254,7 @@ function tick(tmap){
 	}
 }
 var t = new thingmap();
-t.init(12,8);
+t.init(24,16,25,25);
 t.addThing(new thing("thing"),6,4);
 t.addThing(new controlledThing("you"),5,5);
 t.drawMap();
